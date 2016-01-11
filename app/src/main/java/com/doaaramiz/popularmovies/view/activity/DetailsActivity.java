@@ -2,8 +2,12 @@ package com.doaaramiz.popularmovies.view.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.doaaramiz.popularmovies.R;
+import com.doaaramiz.popularmovies.model.Movie;
+import com.doaaramiz.popularmovies.view.fragment.DetailsFragment;
+import com.squareup.picasso.Picasso;
 
 public class DetailsActivity extends BaseActivity {
 
@@ -11,9 +15,23 @@ public class DetailsActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		if (getSupportActionBar() != null)
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		Movie movie = (Movie) getIntent().getSerializableExtra(getResources().getString(R.string.intent_movie));
 
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			getSupportActionBar().setTitle(movie.getOriginalTitle());
+
+			Picasso.with(this)
+				   .load(getResources().getString(R.string.poster_base_url) + "w500/" + movie.getBackdropPath())
+				   .into((ImageView) findViewById(R.id.toolbarImageView));
+		}
+
+		if (savedInstanceState == null) {
+
+			getSupportFragmentManager().beginTransaction()
+									   .replace(R.id.detail_container, DetailsFragment.newInstance(movie, false))
+									   .commit();
+		}
 	}
 
 	@Override

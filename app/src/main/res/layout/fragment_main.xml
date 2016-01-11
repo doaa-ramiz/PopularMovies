@@ -1,14 +1,42 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				xmlns:tools="http://schemas.android.com/tools"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				tools:context=".MainActivityFragment"
-				tools:showIn="@layout/activity_main"
-	android:background="@color/primaryDark">
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
 	<android.support.v7.widget.RecyclerView
 		android:id="@+id/moviesRecyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
 
-</RelativeLayout>
+	<LinearLayout
+		android:id="@+id/emptyListLinearLayout"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:orientation="vertical"
+		android:visibility="gone">
+
+		<ImageView
+			android:id="@+id/emptyListImageView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:adjustViewBounds="true"
+			android:contentDescription="Empty List Image View"
+			android:maxHeight="265dp"
+			android:maxWidth="265dp"
+			android:paddingBottom="4dp"
+			android:src="@drawable/ic_movie_slate"/>
+
+		<TextView
+			android:id="@+id/emptyListTextView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:paddingTop="4dp"
+			android:textColor="@color/colorPrimary"
+			android:textStyle="bold"/>
+
+	</LinearLayout>
+
+</FrameLayout>

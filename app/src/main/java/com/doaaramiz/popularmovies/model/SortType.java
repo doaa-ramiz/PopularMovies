@@ -19,11 +19,12 @@ public enum SortType {
 	VOTE_AVERAGE_ASC("vote_average.asc"),
 	VOTE_AVERAGE_DESC("vote_average.desc"),
 	VOTE_COUNT_ASC("vote_count.asc"),
-	VOTE_COUNT_DESC("vote_count.desc");
+	VOTE_COUNT_DESC("vote_count.desc"),
+	FAVORITE("favorite");
 
 	String value;
 
-	private SortType(String value) {
+	SortType(String value) {
 		this.value = value;
 	}
 

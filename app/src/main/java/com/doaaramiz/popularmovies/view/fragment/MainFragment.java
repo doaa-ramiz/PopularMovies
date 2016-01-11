@@ -3,6 +3,7 @@ package com.doaaramiz.popularmovies.view.fragment;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,12 +15,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.doaaramiz.popularmovies.R;
-import com.doaaramiz.popularmovies.api.APIConnection;
+import com.doaaramiz.popularmovies.business.Business;
+import com.doaaramiz.popularmovies.exception.BusinessException;
+import com.doaaramiz.popularmovies.exception.NetworkException;
 import com.doaaramiz.popularmovies.model.Movie;
 import com.doaaramiz.popularmovies.model.SortType;
 import com.doaaramiz.popularmovies.util.Utils;
+import com.doaaramiz.popularmovies.view.activity.MainActivity;
 import com.doaaramiz.popularmovies.view.adapter.MoviesAdapter;
 
 import java.util.ArrayList;
@@ -27,10 +34,16 @@ import java.util.List;
 
 public class MainFragment extends BaseFragment {
 
-	private RecyclerView moviesRecyclerView;
-	private MoviesAdapter moviesAdapter;
-	private RecyclerView.LayoutManager mLayoutManager;
 	private List<Movie> movies;
+	private RecyclerView moviesRecyclerView;
+	private RecyclerView.LayoutManager layoutManager;
+	private MoviesAdapter moviesAdapter;
+
+	private LinearLayout emptyListLinearLayout;
+	private ImageView emptyListImageView;
+	private TextView emptyListTextView;
+
+	private boolean tabletLayout;
 
 	public MainFragment() {
 	}
@@ -41,6 +54,11 @@ public class MainFragment extends BaseFragment {
 
 		if (movies == null)
 			movies = new ArrayList<>();
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
 
 		getMovies();
 	}
@@ -52,15 +70,36 @@ public class MainFragment extends BaseFragment {
 
 		moviesRecyclerView = (RecyclerView) view.findViewById(R.id.moviesRecyclerView);
 
-		mLayoutManager = new GridLayoutManager(getActivity(), 2);
-		moviesRecyclerView.setLayoutManager(mLayoutManager);
+		layoutManager = new GridLayoutManager(getActivity(), getSpanCount());
 
-		moviesAdapter = new MoviesAdapter(movies, getActivity().getApplicationContext());
+		moviesRecyclerView.setLayoutManager(layoutManager);
+
+		moviesAdapter = new MoviesAdapter(movies, getActivity());
 		moviesRecyclerView.setAdapter(moviesAdapter);
+
+		emptyListLinearLayout = (LinearLayout) view.findViewById(R.id.emptyListLinearLayout);
+		emptyListImageView = (ImageView) view.findViewById(R.id.emptyListImageView);
+		emptyListTextView = (TextView) view.findViewById(R.id.emptyListTextView);
 
 		setHasOptionsMenu(true);
 
 		return view;
+	}
+
+	private int getSpanCount() {
+
+		int spanCount = 1;
+		int orientation = this.getResources().getConfiguration().orientation;
+
+		switch (orientation) {
+			case Configuration.ORIENTATION_PORTRAIT:
+				spanCount = 2;
+				break;
+			case Configuration.ORIENTATION_LANDSCAPE:
+				spanCount = 3;
+				break;
+		}
+		return spanCount;
 	}
 
 	@Override
@@ -74,9 +113,6 @@ public class MainFragment extends BaseFragment {
 		int id = item.getItemId();
 
 		switch (id) {
-			case R.id.action_settings:
-				return true;
-
 			case R.id.action_sort:
 				sortMoviesDialog();
 				return true;
@@ -104,10 +140,13 @@ public class MainFragment extends BaseFragment {
 			case -1:
 				break;
 			case 0:
-				sortType = SortType.POPULARITY_ASC;
+				sortType = SortType.POPULARITY_DESC;
 				break;
 			case 1:
-				sortType = SortType.VOTE_AVERAGE_ASC;
+				sortType = SortType.VOTE_AVERAGE_DESC;
+				break;
+			case 2:
+				sortType = SortType.FAVORITE;
 				break;
 		}
 
@@ -142,6 +181,35 @@ public class MainFragment extends BaseFragment {
 		dialog.show();
 	}
 
+	private void renderEmptyListView() {
+
+		emptyListLinearLayout.setVisibility(View.VISIBLE);
+		moviesRecyclerView.setVisibility(View.GONE);
+
+		emptyListImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_movie_slate));
+		emptyListTextView.setText("Movie list is currently empty");
+	}
+
+	private void renderEmptyFavoriteListView() {
+
+		emptyListLinearLayout.setVisibility(View.VISIBLE);
+		moviesRecyclerView.setVisibility(View.GONE);
+
+		emptyListImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_broken_heart_96));
+		emptyListTextView.setText("Your favorite list is currently empty");
+	}
+
+	private void renderView() {
+
+		emptyListLinearLayout.setVisibility(View.GONE);
+		moviesRecyclerView.setVisibility(View.VISIBLE);
+	}
+
+	public interface Callback {
+
+		void onMovieSelected(Movie movie);
+	}
+
 	private class MoviesListAsyncTask extends AsyncTask<SortType, Void, List<Movie>> {
 
 		@Override
@@ -157,7 +225,21 @@ public class MainFragment extends BaseFragment {
 				sortType = sortTypes[0];
 			}
 
-			return new APIConnection(getActivity().getApplicationContext()).getMoviesListFromAPI(sortType);
+			try {
+				if ((sortType != null) && (sortType.equals(SortType.FAVORITE))) {
+					return Business.getInstance(getActivity().getApplicationContext()).getFavoriteMovies();
+				}
+
+				return Business.getInstance(getActivity().getApplicationContext()).getMoviesList(sortType);
+
+			} catch (NetworkException e) {
+				e.printStackTrace();
+				showNetworkErrorSnackbar();
+			} catch (BusinessException e) {
+				e.printStackTrace();
+			}
+
+			return null;
 		}
 
 		@Override
@@ -167,6 +249,32 @@ public class MainFragment extends BaseFragment {
 				MainFragment.this.movies = movies;
 				moviesAdapter.setMovies(MainFragment.this.movies);
 				moviesAdapter.notifyDataSetChanged();
+				renderView();
+
+				if (getActivity() instanceof MainActivity) {
+					MainActivity mainActivity = (MainActivity) getActivity();
+					tabletLayout = mainActivity.isTabletLayout();
+				}
+
+				if (tabletLayout)
+					((MainFragment.Callback) getActivity()).onMovieSelected(movies.get(0));
+
+			} else {
+
+				if (getSortTypeFromSharedPreference() == 2) {
+					renderEmptyFavoriteListView();
+				} else {
+					renderEmptyListView();
+				}
+
+				if (getActivity() instanceof MainActivity) {
+					MainActivity mainActivity = (MainActivity) getActivity();
+					tabletLayout = mainActivity.isTabletLayout();
+				}
+
+				if (tabletLayout)
+					((MainFragment.Callback) getActivity()).onMovieSelected(null);
+
 			}
 
 			hideProgressDialog();

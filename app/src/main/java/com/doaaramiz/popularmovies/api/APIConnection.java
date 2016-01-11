@@ -2,11 +2,14 @@ package com.doaaramiz.popularmovies.api;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.doaaramiz.popularmovies.BuildConfig;
 import com.doaaramiz.popularmovies.R;
 import com.doaaramiz.popularmovies.model.Movie;
+import com.doaaramiz.popularmovies.model.Review;
 import com.doaaramiz.popularmovies.model.SortType;
+import com.doaaramiz.popularmovies.model.Trailer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,27 +25,32 @@ import java.util.List;
  */
 public class APIConnection {
 
-	private Context context;
+	private static APIConnection apiConnection;
+	private String baseUrl;
 
-	public APIConnection(Context context) {
-		this.context = context;
+	private APIConnection(Context context) {
+		baseUrl = context.getResources().getString(R.string.request_base_url);
 	}
 
-	public List<Movie> getMoviesListFromAPI(SortType sortType) {
+	public static APIConnection getInstance(Context context) {
+		if (apiConnection == null)
+			apiConnection = new APIConnection(context);
+		return apiConnection;
+	}
+
+	private String getDataFromAPI(Uri.Builder uriBuilder) {
 
 		HttpURLConnection urlConnection = null;
 		BufferedReader reader = null;
-		String jsonStr = null;
+		String jsonStr;
 
 		try {
 
-			Uri.Builder uriBuilder = Uri.parse(context.getResources().getString(R.string.request_base_url)).buildUpon();
-
-			if (sortType != null)
-				uriBuilder.appendQueryParameter("sort_by", sortType.getValue());
 			uriBuilder.appendQueryParameter("api_key", BuildConfig.POPULAR_MOVIES_API_KEY).build();
 
 			URL url = new URL(uriBuilder.toString());
+
+			Log.d("URL   -   ", url.toString());
 
 			urlConnection = (HttpURLConnection) url.openConnection();
 			urlConnection.setRequestMethod("GET");
@@ -65,7 +73,7 @@ public class APIConnection {
 			}
 			jsonStr = buffer.toString();
 
-			return APIHelper.getMoviesListFromJson(jsonStr);
+			return jsonStr;
 
 		} catch (IOException e) {
 			return null;
@@ -81,5 +89,35 @@ public class APIConnection {
 				}
 			}
 		}
+	}
+
+	public List<Movie> getMoviesListFromAPI(SortType sortType) {
+
+		Uri.Builder uriBuilder = Uri.parse(baseUrl + "discover/movie?").buildUpon();
+
+		if (sortType != null)
+			uriBuilder.appendQueryParameter("sort_by", sortType.getValue());
+
+		String jsonStr = getDataFromAPI(uriBuilder);
+
+		return Parser.parseMoviesFromJson(jsonStr);
+	}
+
+	public List<Trailer> getMovieTrailerFromAPI(Long movieId) {
+
+		Uri.Builder uriBuilder = Uri.parse(baseUrl + "movie/" + movieId + "/videos").buildUpon();
+
+		String jsonStr = getDataFromAPI(uriBuilder);
+
+		return Parser.parseTrailersFromJson(jsonStr);
+	}
+
+	public List<Review> getMovieReviewsFromAPI(Long movieId) {
+
+		Uri.Builder uriBuilder = Uri.parse(baseUrl + "movie/" + movieId + "/reviews").buildUpon();
+
+		String jsonStr = getDataFromAPI(uriBuilder);
+
+		return Parser.parseReviewsFromJson(jsonStr);
 	}
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<dimen name="review_minHeight">100dp</dimen>
+	<dimen name="review_maxHeight">300dp</dimen>
+
+</resources>

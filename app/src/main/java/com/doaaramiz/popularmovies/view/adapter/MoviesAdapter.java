@@ -1,7 +1,6 @@
 package com.doaaramiz.popularmovies.view.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,7 @@ import android.widget.ImageView;
 
 import com.doaaramiz.popularmovies.R;
 import com.doaaramiz.popularmovies.model.Movie;
-import com.doaaramiz.popularmovies.view.activity.DetailsActivity;
+import com.doaaramiz.popularmovies.view.fragment.MainFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -45,15 +44,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 
 		final Movie movie = movies.get(position);
 
-		Picasso.with(context).load(context.getResources().getString(R.string.poster_base_url) + movie.getPosterPath()).into(viewHolder.getPosterImageView());
+		if (movie.getPosterPath() != null) {
+			Picasso.with(context)
+				   .load(context.getResources().getString(R.string.poster_base_url) + "w500/" + movie.getPosterPath())
+				   .into(viewHolder.getPosterImageView());
+		}
 
 		viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(context, DetailsActivity.class);
-				intent.putExtra(context.getResources().getString(R.string.intent_movie), movie);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				context.startActivity(intent);
+				((MainFragment.Callback) context).onMovieSelected(movie);
 			}
 		});
 	}
@@ -63,7 +63,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.ViewHolder
 		return movies.size();
 	}
 
-	public class ViewHolder extends RecyclerView.ViewHolder {
+	class ViewHolder extends RecyclerView.ViewHolder {
 
 		private final ImageView posterImageView;
 

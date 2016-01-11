@@ -1,0 +1,168 @@
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
+	tools:context=".view.fragment.DetailsFragment">
+
+	<include
+		android:id="@+id/detailsCollapsingToolbar"
+		layout="@layout/layout_collapsing_toolbar"/>
+
+	<ImageView
+		android:id="@+id/emptyDetailsImageView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:src="@drawable/ic_movie"
+		android:visibility="gone"/>
+
+	<android.support.v4.widget.NestedScrollView
+		android:id="@+id/detailsNestedScrollView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/activity_vertical_margin_small"
+			android:paddingLeft="@dimen/activity_horizontal_margin_small"
+			android:paddingRight="@dimen/activity_horizontal_margin_small"
+			android:paddingTop="@dimen/activity_vertical_margin_small">
+
+			<ToggleButton
+				android:id="@+id/favoriteToggleButton"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_alignParentEnd="true"
+				android:layout_below="@+id/originalTitleTextView"
+				android:background="@drawable/tgl_btn_favorite"
+				android:checked="false"
+				android:textOff=""
+				android:textOn=""/>
+
+			<TextView
+				android:id="@+id/originalTitleTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentTop="true"
+				android:layout_centerHorizontal="true"
+				android:text="title"
+				android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+			<RelativeLayout
+				android:id="@+id/relativeLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/originalTitleTextView"
+				android:layout_gravity="center"
+				android:gravity="center"
+				android:paddingBottom="@dimen/activity_vertical_margin"
+				android:paddingStart="10dp"
+				android:paddingTop="@dimen/activity_vertical_margin">
+
+				<ImageView
+					android:id="@+id/posterImageView"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentStart="true"
+					android:paddingStart="30dp"/>
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:layout_margin="10dp"
+					android:layout_marginStart="@dimen/activity_vertical_margin"
+					android:layout_toEndOf="@+id/posterImageView"
+					android:orientation="vertical">
+
+					<TextView
+						android:id="@+id/voteAverageTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:drawablePadding="8dp"
+						android:drawableStart="@drawable/ic_star_outlined_24"
+						android:gravity="center"
+						android:paddingBottom="4dp"
+						android:text="vote"/>
+
+					<TextView
+						android:id="@+id/releaseDateTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:drawablePadding="8dp"
+						android:drawableStart="@drawable/ic_calendar_24"
+						android:gravity="center"
+						android:paddingTop="4dp"
+						android:text="date"/>
+
+				</LinearLayout>
+
+			</RelativeLayout>
+
+			<TextView
+				android:id="@+id/overviewTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/relativeLayout"/>
+
+			<LinearLayout
+				android:id="@+id/trailersLinearLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/overviewTextView"
+				android:orientation="vertical"
+				android:visibility="gone">
+
+				<View style="@style/line_separator_style"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="start"
+					android:layout_marginBottom="4dp"
+					android:text="Trailers"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="@color/colorPrimary"/>
+
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/trailersRecyclerView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"/>
+
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/reviewsLinearLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/trailersLinearLayout"
+				android:orientation="vertical"
+				android:visibility="gone">
+
+				<View style="@style/line_separator_style"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="start"
+					android:layout_marginBottom="4dp"
+					android:text="Reviews"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:textColor="@color/colorPrimary"/>
+
+				<android.support.v7.widget.RecyclerView
+					android:id="@+id/reviewsRecyclerView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"/>
+
+			</LinearLayout>
+
+		</RelativeLayout>
+
+	</android.support.v4.widget.NestedScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -7,6 +7,8 @@ import android.support.v7.widget.Toolbar;
 import com.doaaramiz.popularmovies.R;
 
 /**
+ * Base Activity class containing common activities behaviour
+ *
  * @author doaaramiz
  * @date 24.11.2015
  */
